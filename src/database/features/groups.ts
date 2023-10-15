@@ -18,7 +18,6 @@ export const dbChangeGroupStatus = async (
   groupId: number,
   status: GroupStatus
 ) => {
-  console.log("groupId:", groupId);
   Group.update(
     {
       status: status,
