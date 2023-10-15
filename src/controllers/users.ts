@@ -1,13 +1,14 @@
 import {
   StatusUpdate,
   dbGetAllUsers,
+  dbRemoveUserFromGroup,
   getUsersWithPagination,
   updateMultiUserMultiStatus,
 } from "../database/features/users";
 import { Request, Response } from "express";
 
 export const getUserByName = async (req: Request, res: Response) => {
-  const { name } = req.query;
+  const name = req.params.name;
   if (name === undefined) {
     res.status(404);
     res.send("Invalid input");
@@ -28,7 +29,7 @@ export const getUserByName = async (req: Request, res: Response) => {
 };
 
 export const getUserByEmail = async (req: Request, res: Response) => {
-  const { email } = req.query;
+  const email = req.params.email;
   if (email === undefined) {
     res.status(404);
     res.send("Invalid input");
@@ -85,5 +86,24 @@ export const patchStatuses = async (req: Request, res: Response) => {
   } catch (e) {
     res.status(404);
     res.send("error");
+  }
+};
+
+export const removeUserFromGroup = async (req: Request, res: Response) => {
+  let userId: number = -1;
+
+  try {
+    userId = parseInt(req.params.userId!.toString(), 10);
+  } catch (e) {
+    res.status(404);
+    res.send("Invalid input");
+  }
+
+  try {
+    await dbRemoveUserFromGroup(userId);
+    res.send("Success");
+  } catch (e) {
+    res.status(404);
+    res.send(e);
   }
 };

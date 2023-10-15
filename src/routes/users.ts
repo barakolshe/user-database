@@ -4,6 +4,7 @@ import {
   getUserByName,
   paginateUsers,
   patchStatuses,
+  removeUserFromGroup,
 } from "../controllers/users";
 
 const userRouter = express.Router();
@@ -22,6 +23,10 @@ userRouter.get("/paginate", (req: Request, res: Response) => {
 
 userRouter.patch("/status", (req: Request, res: Response) => {
   patchStatuses(req, res);
+});
+
+userRouter.get("/remove/:userId", (req: Request, res: Response) => {
+  removeUserFromGroup(req, res);
 });
 
 export { userRouter };

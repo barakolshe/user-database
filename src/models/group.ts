@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import dbClient from "../database/database";
+import { GroupStatus } from "../types/GroupStatus.interface";
 
 const Group = dbClient.define(
   "Group",
@@ -8,12 +9,8 @@ const Group = dbClient.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     status: {
-      type: DataTypes.ENUM("empty", "notEmpty"),
+      type: DataTypes.ENUM<GroupStatus>("empty", "notEmpty"),
     },
   },
   {}

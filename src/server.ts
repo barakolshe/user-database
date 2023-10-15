@@ -1,25 +1,18 @@
-import express, { Express, Request, Response, Application } from "express";
+import express, { Application } from "express";
 import dbClient from "./database/database";
 import { userRouter } from "./routes/users";
-import { User } from "./models/user";
-import { Group } from "./models/group";
-import { dbAddUser } from "./database/features/users";
+import { groupRouter } from "./routes/groups";
 
 const app: Application = express();
 const port = 8000;
 
 app.listen(port, () => {
-  console.log(`Server is Fire at http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
   dbClient
     .authenticate()
     .then(() => {
       console.log("Connection has been established successfully.");
-      //   dbClient.sync({});
-      //   dbAddUser({
-      //     name: "Josh",
-      //     email: "josh@gmail.com",
-      //     status: "pending",
-      //   });
+      //   dbClient.sync();
     })
     .catch((error) => {
       console.error("Unable to connect to the database: ", error);
@@ -28,5 +21,6 @@ app.listen(port, () => {
 
 app.use(express.json());
 app.use("/user", userRouter);
+app.use("/group", groupRouter);
 
 export default app;

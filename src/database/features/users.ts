@@ -1,8 +1,9 @@
-import { Sequelize } from "sequelize";
 import { User } from "../../models/user";
 import UserRequest from "../../types/UserRequest.interafce";
 import sequelize from "sequelize";
-import { Status } from "../../types/Status.interface";
+import { UserStatus } from "../../types/UserStatus.interface";
+import { Group } from "../../models/group";
+import { dbChangeGroupStatus } from "./groups";
 
 export const dbAddUser = async (userData: UserRequest) => {
   return await User.create({
@@ -61,11 +62,11 @@ export const getUsersWithPagination = async (offset: number, limit: number) => {
 
 export interface StatusUpdate {
   userId: number;
-  status: Status;
+  status: UserStatus;
 }
 
 export const updateMultiUserMultiStatus = async (data: StatusUpdate[]) => {
-  const organizedUpdates = new Map<Status, number[]>();
+  const organizedUpdates = new Map<UserStatus, number[]>();
 
   for (const statusUpdate of data) {
     const { status, userId } = statusUpdate;
@@ -83,7 +84,7 @@ export const updateMultiUserMultiStatus = async (data: StatusUpdate[]) => {
 
 export const updateMultiUserStatus = async (
   userIds: number[],
-  status: Status
+  status: UserStatus
 ) => {
   User.update(
     {
@@ -97,4 +98,57 @@ export const updateMultiUserStatus = async (
       },
     }
   );
+};
+
+export const dbAddUserToGroup = async (userId: number, groupId: number) => {
+  User.update(
+    {
+      GroupId: groupId,
+    },
+    {
+      where: {
+        id: userId,
+      },
+    }
+  );
+
+  Group.update(
+    {
+      status: "notEmpty",
+    },
+    {
+      where: {
+        id: groupId,
+      },
+    }
+  );
+};
+
+export const dbRemoveUserFromGroup = async (userId: number) => {
+  const user = await User.findByPk(userId, {
+    attributes: ["GroupId"],
+  });
+  const groupId = user!.get("GroupId") as number;
+
+  User.update(
+    {
+      GroupId: null,
+    },
+    {
+      where: {
+        id: userId,
+      },
+    }
+  );
+
+  const userCount = await User.count({
+    where: {
+      GroupId: groupId,
+    },
+  });
+
+  if (userCount === 0) {
+    dbChangeGroupStatus(groupId, "empty");
+  }
+  return;
 };
